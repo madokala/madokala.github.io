@@ -1,0 +1,905 @@
+001
+<!DOCTYPE html>
+002
+<head>
+003
+<meta charset="utf-8">
+004
+<meta name="viewport" content="width=device-width,target-densitydpi=high-dpi,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/> 
+005
+ 
+006
+<title>2048</title>
+007
+<style type="text/css">
+008
+table { table-layout: fixed }
+009
+table tr td{
+010
+background-color: #D7CE80;
+011
+border:#666666;
+012
+font-size:48px;
+013
+}
+014
+</style>
+015
+</head>
+016
+<script type="text/javascript" src="jquery-1.11.0.js"></script>
+017
+<script type="text/javascript" src="canvas.js"></script>
+018
+ 
+019
+<body>
+020
+<div id="version"></div>  
+021
+<table cellspacing="5px" frame="border">
+022
+<tr>
+023
+<td id="0">
+024
+</td>
+025
+<td id="1">
+026
+</td>
+027
+<td id="2">
+028
+</td>
+029
+<td id="3">
+030
+</td>
+031
+</tr>
+032
+<tr>
+033
+<td id="4">
+034
+</td>
+035
+<td id="5">
+036
+</td>
+037
+<td  id="6">
+038
+</td>
+039
+<td id="7">
+040
+</td>
+041
+</tr>
+042
+<tr>
+043
+<td id="8">
+044
+</td>
+045
+<td id="9">
+046
+</td>
+047
+<td id="10">
+048
+</td>
+049
+<td id="11">
+050
+</td>
+051
+</tr>
+052
+<tr>
+053
+<td id="12">
+054
+</td>
+055
+<td id="13">
+056
+</td>
+057
+<td id="14">
+058
+</td>
+059
+<td id="15">
+060
+</td>
+061
+</tr>
+062
+</table>
+063
+<script type="text/javascript" src="setHeight.js"></script>
+064
+<script type="text/javascript">
+065
+var startX = 0, startY = 0,d=-1;  
+066
+  //touchstart事件  
+067
+            function touchSatrtFunc(evt) {  
+068
+                try  
+069
+                {  
+070
+                    evt.preventDefault(); //阻止触摸时浏览器的缩放、滚动条滚动等  
+071
+                    var touch = evt.touches[0]; //获取第一个触点  
+072
+                    var x = Number(touch.pageX); //页面触点X坐标  
+073
+                    var y = Number(touch.pageY); //页面触点Y坐标  
+074
+                    //记录触点初始位置  
+075
+                    startX = x;  
+076
+                    startY = y;  
+077
+                }  
+078
+                catch (e) {  
+079
+                    alert('touchSatrtFunc：' + e.message);  
+080
+                }  
+081
+            }  
+082
+   
+083
+            //touchmove事件，这个事件无法获取坐标  
+084
+            function touchMoveFunc(evt) {  
+085
+                try  
+086
+                {  
+087
+                    evt.preventDefault(); //阻止触摸时浏览器的缩放、滚动条滚动等  
+088
+                    var touch = evt.touches[0]; //获取第一个触点  
+089
+                    var x = Number(touch.pageX); //页面触点X坐标  
+090
+                    var y = Number(touch.pageY); //页面触点Y坐标   
+091
+   
+092
+                    //判断滑动方向  
+093
+                 if((y-startY)>0&&Math.abs((y-startY)/(x-startX))>1)
+094
+                {
+095
+                    d=0;
+096
+                }
+097
+                else if(y-startY<0&&Math.abs((y-startY)/(x-startX))>1)
+098
+                {
+099
+                    d=1;
+100
+                }
+101
+                else if((x-startX)>0&&Math.abs((y-startY)/(x-startX))<1)
+102
+                {
+103
+                    d=2;
+104
+                }
+105
+                else
+106
+                {
+107
+                    d=3;
+108
+                }
+109
+  
+110
+                }  
+111
+                catch (e) 
+112
+                {  
+113
+                    alert('touchMoveFunc：' + e.message);  
+114
+                }  
+115
+            }  
+116
+   
+117
+            //touchend事件  
+118
+            function touchEndFunc(evt) {  
+119
+                try {  
+120
+                    evt.preventDefault(); //阻止触摸时浏览器的缩放、滚动条滚动等  
+121
+                    if(d==0)
+122
+                    {
+123
+                        down();//下
+124
+                    }
+125
+                    else if(d==1)
+126
+                    {
+127
+                        up();//上
+128
+                    }
+129
+                    else if(d==2)
+130
+                    {
+131
+                        right();//右
+132
+                    }
+133
+                    else if(d==3)
+134
+                    {
+135
+                        left();//左
+136
+                    }
+137
+                }  
+138
+                catch (e) {  
+139
+                    alert('touchEndFunc：' + e.message);  
+140
+                }  
+141
+            }  
+142
+   
+143
+            //绑定事件  
+144
+            function bindEvent() {  
+145
+                document.addEventListener('touchstart', touchSatrtFunc, false);  
+146
+                document.addEventListener('touchmove', touchMoveFunc, false);  
+147
+                document.addEventListener('touchend', touchEndFunc, false);  
+148
+            }  
+149
+   
+150
+            //判断是否支持触摸事件  
+151
+            function isTouchDevice() 
+152
+            {  
+153
+              //  document.getElementById("version").innerHTML = navigator.appVersion;  
+154
+                    document.createEvent("TouchEvent");  
+155
+                    bindEvent(); //绑定事件  
+156
+            }  
+157
+             
+158
+            document.onkeypress=function(evt)
+159
+            {
+160
+            var evt=window.event?window.event:evt;
+161
+               if (evt.keyCode=='119' )
+162
+               {
+163
+                up();//上
+164
+               }
+165
+               if(evt.keyCode=='115')
+166
+               {
+167
+                    down();//下
+168
+               }
+169
+                if(evt.keyCode=='100')
+170
+               {
+171
+                    right();
+172
+               }
+173
+                if(evt.keyCode=='97')
+174
+               {
+175
+                    left();
+176
+               }
+177
+            }
+178
+            window.onload = isTouchDevice; 
+179
+</script>
+180
+</body>
+181
+</html>
+setHeight.js
+01
+// JavaScript Document
+02
+ 
+03
+$(document).ready(          function(){
+04
+                           x=$(window).width();
+05
+                           y=$(window).height();
+06
+                           if(x<=y)
+07
+                           {
+08
+                           $("td").css("width",x/6)
+09
+                                  .css("height",x/6);
+10
+                           }
+11
+                           else
+12
+                           {
+13
+                               $("td").css("width",y/6)
+14
+                                  .css("height",y/6);
+15
+                           }
+16
+                            
+17
+                });
+18
+  num=new Array(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+19
+                    i=Math.floor(Math.random()*16);
+20
+                    num[i]=2;
+21
+                    i=Math.floor(Math.random()*16);
+22
+                    num[i]=2;
+23
+                    strArr=num.toString();
+24
+                    ga(strArr);
+25
+                    donum();
+canvas.js
+view source
+print
+?
+001
+// JavaScript Document
+002
+getArr=new Array();
+003
+function ga(str)
+004
+{
+005
+    getArr = str.split(",");
+006
+}
+007
+ 
+008
+function donum()
+009
+{
+010
+    for(i=0;i<16;i++)
+011
+    {
+012
+        if(getArr[i]!=0)
+013
+        {
+014
+            document.getElementById(i).innerText=getArr[i];
+015
+        }
+016
+        else
+017
+        {
+018
+            document.getElementById(i).innerText="";
+019
+        }
+020
+    }
+021
+     
+022
+}
+023
+ 
+024
+function randnum()
+025
+{
+026
+    var num;
+027
+    for(j=0;j<16;j++)
+028
+    {
+029
+        if(getArr[j]!=0)
+030
+        {
+031
+            num++;
+032
+        }
+033
+    }
+034
+    if(num!=16)
+035
+    {
+036
+        while(1)
+037
+        {
+038
+            i=Math.floor(Math.random()*16);
+039
+            if(getArr[i]==0)
+040
+            {
+041
+                var rn=Math.ceil(Math.random()*10);
+042
+                if(rn>0&&rn<=6)
+043
+                {
+044
+                    getArr[i]=2;
+045
+                }
+046
+                else if(rn>6&&rn<=9)
+047
+                {
+048
+                    getArr[i]=4;
+049
+                }
+050
+                else
+051
+                {
+052
+                    getArr[i]=8;
+053
+                }
+054
+                     
+055
+                break;
+056
+            }
+057
+        }
+058
+    }
+059
+        donum();
+060
+}
+061
+function down()
+062
+{
+063
+    for(var num=12;num<=15;num++)
+064
+    {
+065
+        if(getArr[num]==getArr[num-4])
+066
+        {
+067
+            getArr[num]=parseInt(getArr[num-4])+parseInt(getArr[num]);
+068
+            getArr[num-4]=0;
+069
+            if(getArr[num-8]==getArr[num-12])
+070
+            {
+071
+                getArr[num-8]=parseInt(getArr[num-8])+parseInt(getArr[num-12]);
+072
+                getArr[num-12]=0;
+073
+            }
+074
+        }
+075
+        else if(getArr[num-4]==getArr[num-8])
+076
+        {
+077
+            getArr[num-4]=parseInt(getArr[num-8])+parseInt(getArr[num-4]);
+078
+            getArr[num-8]=0;
+079
+        }
+080
+        else if(getArr[num-8]==getArr[num-12])
+081
+        {
+082
+            getArr[num-8]=parseInt(getArr[num-12])+parseInt(getArr[num-8]);
+083
+            getArr[num-12]=0;
+084
+        }
+085
+         
+086
+         
+087
+        for(var j=num;j>=num-8;j=j-4)
+088
+        {
+089
+            if(getArr[j]==0)
+090
+            {
+091
+                for(var i=j-4;i>=0;i=i-4)
+092
+                {
+093
+                    if(getArr[i]!=0)
+094
+                    {
+095
+                        getArr[j]=getArr[i];
+096
+                        getArr[i]=0;
+097
+                        break;
+098
+                    }
+099
+                }
+100
+            }
+101
+        }
+102
+         
+103
+    }
+104
+    donum();
+105
+    randnum();
+106
+}
+107
+ 
+108
+ 
+109
+function up()
+110
+{
+111
+    for(var num=3;num>=0;num--)
+112
+    {
+113
+        if(getArr[num]==getArr[num+4])
+114
+        {
+115
+            getArr[num]=parseInt(getArr[num+4])+parseInt(getArr[num]);
+116
+            getArr[num+4]=0;
+117
+            if(getArr[num+8]==getArr[num+12])
+118
+            {
+119
+                getArr[num+8]=parseInt(getArr[num+8])+parseInt(getArr[num+12]);
+120
+                getArr[num+12]=0;
+121
+            }
+122
+        }
+123
+        else if(getArr[num+4]==getArr[num+8])
+124
+        {
+125
+            getArr[num+4]=parseInt(getArr[num+8])+parseInt(getArr[num+4]);
+126
+            getArr[num+8]=0;
+127
+        }
+128
+        else if(getArr[num+8]==getArr[num+12])
+129
+        {
+130
+            getArr[num+8]=parseInt(getArr[num+12])+parseInt(getArr[num+8]);
+131
+            getArr[num+12]=0;
+132
+        }
+133
+         
+134
+         
+135
+        for(var j=num;j<=num+8;j=j+4)
+136
+        {
+137
+            if(getArr[j]==0)
+138
+            {
+139
+                for(var i=j+4;i<=15;i=i+4)
+140
+                {
+141
+                    if(getArr[i]!=0)
+142
+                    {
+143
+                        getArr[j]=getArr[i];
+144
+                        getArr[i]=0;
+145
+                        break;
+146
+                    }
+147
+                }
+148
+            }
+149
+        }
+150
+         
+151
+    }
+152
+    donum();
+153
+    randnum();
+154
+}
+155
+ 
+156
+ 
+157
+function right()
+158
+{
+159
+    for(var num=15;num>=3;num=num-4)
+160
+    {
+161
+        if(getArr[num]==getArr[num-1])
+162
+        {
+163
+            getArr[num]=parseInt(getArr[num-1])+parseInt(getArr[num]);
+164
+            getArr[num-1]=0;
+165
+            if(getArr[num-2]==getArr[num-3])
+166
+            {
+167
+                getArr[num-2]=parseInt(getArr[num-2])+parseInt(getArr[num-3]);
+168
+                getArr[num-3]=0;
+169
+            }
+170
+        }
+171
+        else if(getArr[num-1]==getArr[num-2])
+172
+        {
+173
+            getArr[num-1]=parseInt(getArr[num-2])+parseInt(getArr[num-1]);
+174
+            getArr[num-2]=0;
+175
+        }
+176
+        else if(getArr[num-2]==getArr[num-3])
+177
+        {
+178
+            getArr[num-2]=parseInt(getArr[num-3])+parseInt(getArr[num-2]);
+179
+            getArr[num-3]=0;
+180
+        }
+181
+         
+182
+        for(var j=num;j>=num-2;j=j-1)
+183
+        {
+184
+            if(getArr[j]==0)
+185
+            {
+186
+                for(var i=j-1;i>=num-3;i=i-1)
+187
+                {
+188
+                    if(getArr[i]!=0)
+189
+                    {
+190
+                        getArr[j]=getArr[i];
+191
+                        getArr[i]=0;
+192
+                        break;
+193
+                    }
+194
+                }
+195
+            }
+196
+        }
+197
+    }
+198
+    donum();
+199
+    randnum();
+200
+}
+201
+function left()
+202
+{
+203
+    for(var num=0;num<=12;num=num+4)
+204
+    {
+205
+        if(getArr[num]==getArr[num+1])
+206
+        {
+207
+            getArr[num]=parseInt(getArr[num+1])+parseInt(getArr[num]);
+208
+            getArr[num+1]=0;
+209
+            if(getArr[num+2]==getArr[num+3])
+210
+            {
+211
+                getArr[num+2]=parseInt(getArr[num+2])+parseInt(getArr[num+3]);
+212
+                getArr[num+3]=0;
+213
+            }
+214
+        }
+215
+        else if(getArr[num+1]==getArr[num+2])
+216
+        {
+217
+            getArr[num+1]=parseInt(getArr[num+2])+parseInt(getArr[num+1]);
+218
+            getArr[num+2]=0;
+219
+        }
+220
+        else if(getArr[num+2]==getArr[num+3])
+221
+        {
+222
+            getArr[num+2]=parseInt(getArr[num+3])+parseInt(getArr[num+2]);
+223
+            getArr[num+3]=0;
+224
+        }
+225
+         
+226
+        for(var j=num;j<=num+2;j=j+1)
+227
+        {
+228
+            if(getArr[j]==0)
+229
+            {
+230
+                for(var i=j+1;i<=num+3;i=i+1)
+231
+                {
+232
+                    if(getArr[i]!=0)
+233
+                    {
+234
+                        getArr[j]=getArr[i];
+235
+                        getArr[i]=0;
+236
+                        break;
+237
+                    }
+238
+                }
+239
+            }
+240
+        }
+241
+    }
+242
+    donum();
+243
+    randnum();
+244
+}
