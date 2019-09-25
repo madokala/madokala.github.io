@@ -1,19 +1,9 @@
-## Welcome to GitHub Pages
+## 欢迎来到koraly的github主页
+9.25我搭建好了我的网站
 
-You can use the [editor on GitHub](https://github.com/madokala/madokala.github.io/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
-
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
-
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
+今天我同学全去军训了我摸鱼真开心
+### 第二天还没想好干什么
+好无聊啊
 
 - Bulleted
 - List
